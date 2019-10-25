@@ -1,6 +1,6 @@
 provider "aws" {
   region = "${var.rds_region}"
-  version = "2.33"
+  version = "${var.provider_version}"
 }
 
 #locals {

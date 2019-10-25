@@ -62,7 +62,7 @@ variable "publicsubnet_public_ip" {
 
 variable "publicsubnetname" {
   type = "string"
-  default = "Test_VPC_Subnet_Public"
+  default = "Subnet_Public"
 }
 
 # Note: Please provide multiple availability_zone if you are creating multiple subnets
@@ -79,17 +79,17 @@ variable "privatesubnetcidr" {
 
 variable "privatesubnetname" {
   type = "string"
-  default = "Test_VPC_Subnet_Private"
+  default = "Subnet_Private"
 }
 
 variable "publicnaclname" {
   type = "string"
-  default = "Test_VPC_Public_NACL"
+  default = "Public_NACL"
 }
 
 variable "privatenaclname" {
   type = "string"
-  default = "Test_VPC_Private_NACL"
+  default = "Private_NACL"
 }
 
 variable "igwname" {
@@ -99,22 +99,22 @@ variable "igwname" {
 
 variable "natgatewayeipname" {
   type = "string"
-  default = "Test_VPC_Natgateway_ipname"
+  default = "Natgateway_ipname"
 }
 
 variable "natgatewayname" {
   type = "string"
-  default = "Test_VPC_Natgateway_name"
+  default = "Natgateway_name"
 }
 
 variable "publicroutetablename" {
   type = "string"
-  default = "Test_VPC_Public_RouteTable"
+  default = "Public_RouteTable"
 }
 
 variable "privateroutetablename" {
   type = "string"
-  default = "Test_VPC_Private_RouteTable"
+  default = "Private_RouteTable"
 }
 
 variable "publicNACL_inbound" {

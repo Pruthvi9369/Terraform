@@ -27,6 +27,12 @@ variable "rds_region" {
   default = "us-east-1"
 }
 
+variable "provider_version" {
+  description = "Provider/ Terraform version"
+  type = "string"
+  default = "2.33"
+}
+
 variable "vpc_name" {
   description = "VPC name in which we create this database"
   type = "string"

@@ -23,7 +23,7 @@ resource "aws_subnet" "apppublicsubnet" {
   availability_zone = "${element(var.publicazs, count.index)}"
   vpc_id = "${aws_vpc.appvpc.id}"
   tags = {
-    Name = "${var.publicsubnetname}-${count.index+1}"
+    Name = "${var.vpcname}-${var.publicsubnetname}-${count.index+1}"
   }
 }
 
@@ -33,7 +33,7 @@ resource "aws_subnet" "appprivatesubnet" {
   availability_zone = "${element(var.privateazs, count.index)}"
   vpc_id = "${aws_vpc.appvpc.id}"
   tags = {
-    Name = "${var.privatesubnetname}-${count.index+1}"
+    Name = "${var.vpcname}-${var.privatesubnetname}-${count.index+1}"
   }
 }
 
@@ -41,7 +41,7 @@ resource "aws_network_acl" "publicnetworkacl" {
   vpc_id = "${aws_vpc.appvpc.id}"
   subnet_ids = "${aws_subnet.apppublicsubnet.*.id}"
   tags = {
-    Name = "${var.publicnaclname}"
+    Name = "${var.vpcname}-${var.publicnaclname}"
   }
 }
 
@@ -50,22 +50,22 @@ resource "aws_network_acl" "privatenetworkacl" {
   subnet_ids = "${aws_subnet.appprivatesubnet.*.id}"
 
   tags = {
-    Name = "${var.privatenaclname}"
+    Name = "${var.vpcname}-${var.privatenaclname}"
   }
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = "${aws_vpc.appvpc.id}"
   tags = {
-    Name = "${var.igwname}"
+    Name = "${var.vpcname}-${var.igwname}"
   }
 }
 
 resource "aws_eip" "natgatewayip" {
-  count = "${length(var.publicazs)}"
+  count = "${length(var.publicsubnetcidr)}"
   vpc = true
   tags = {
-    Name = "${var.natgatewayeipname}-${count.index+1}"
+    Name = "${var.vpcname}-${var.natgatewayeipname}-${count.index+1}"
   }
 }
 
@@ -74,14 +74,14 @@ resource "aws_nat_gateway" "natgateway" {
   allocation_id = "${element(aws_eip.natgatewayip.*.id, count.index)}"
   subnet_id = "${element(aws_subnet.apppublicsubnet.*.id, count.index)}"
   tags = {
-    Name = "${var.natgatewayname}-${count.index+1}"
+    Name = "${var.vpcname}-${var.natgatewayname}-${count.index+1}"
   }
 }
 
 resource "aws_route_table" "publicroutetable" {
   vpc_id = "${aws_vpc.appvpc.id}"
   tags = {
-    Name = "${var.publicroutetablename}"
+    Name = "${var.vpcname}-${var.publicroutetablename}"
   }
 }
 
@@ -100,7 +100,7 @@ resource "aws_route" "publicroute" {
 resource "aws_route_table" "privateroutetable" {
   vpc_id = "${aws_vpc.appvpc.id}"
   tags = {
-    Name = "${var.privateroutetablename}"
+    Name = "${var.vpcname}-${var.privateroutetablename}"
   }
 }
 
