@@ -5,7 +5,7 @@ database_engine
 database_engine_version
 database_identifier
 database_instance_class
-database_az # if public please provide public az
+database_az -->
 initial_database_name
 database_master_user_name
 database_master_user_password
