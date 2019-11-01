@@ -3,7 +3,10 @@ resource "aws_s3_bucket" "NewBucket" {
   bucket_prefix = "${var.bucketprefix}"
   acl = "${var.Accesscl}"
   policy = "${var.bucket_policy}"
-  tags = "${var.bucket_tags}"
+  tags = "${merge(map(
+    "Bucker_Name", "${var.bucketname}",
+    "region", "${var.bucket_region}",
+    ), var.bucket_tags)}"
   force_destroy  = "${var.bucket_force_destroy}"
   acceleration_status = "${var.bucket_acceleration_status}"
   region = "${var.bucket_region}"

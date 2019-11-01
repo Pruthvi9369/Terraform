@@ -1,6 +1,6 @@
 provider "aws" {
   region = "${var.rds_region}"
-  version = "${var.provider_version}"
+  version = "2.33"
 }
 
 #locals {
@@ -9,9 +9,9 @@ provider "aws" {
 
 resource "aws_db_subnet_group" "rds_subnet_group" {
   subnet_ids = "${var.database_subnet_ids}"
-  tags = {
-    Name = "${var.database_identifier}-${var.vpc_name}-Subnet_group"
-  }
+  tags = "${merge(map(
+    "Name", "${var.database_identifier}-${var.vpc_name}-Subnet_group",
+    ), var.rds_subnet_group_tags)}"
 }
 
 resource "aws_db_instance" "rds" {
@@ -56,9 +56,10 @@ resource "aws_db_instance" "rds" {
   snapshot_identifier = "${var.database_snapshot_identifier}"
   storage_encrypted = "${var.database_storage_encrypted}"
   storage_type = "${var.database_storage_type}"
-  tags = {
-    Name = "${var.database_identifier}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.database_identifier}",
+    "engine", "${var.database_engine}",
+    ), var.database_tags)}"
   timezone = "${var.database_timezone}"
   username = "${var.database_master_user_name}"
   vpc_security_group_ids = "${var.database_vpc_security_group_ids}"

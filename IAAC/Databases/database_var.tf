@@ -5,7 +5,7 @@ database_engine
 database_engine_version
 database_identifier
 database_instance_class
-database_az -->
+database_az # if public please provide public az
 initial_database_name
 database_master_user_name
 database_master_user_password
@@ -27,11 +27,12 @@ variable "rds_region" {
   default = "us-east-1"
 }
 
-variable "provider_version" {
-  description = "Provider/ Terraform version"
-  type = "string"
-  default = "2.33"
-}
+# Note: We cannot use version as variable
+#variable "provider_version" {
+#  description = "Provider or Terraform version"
+#  type = "string"
+#  default = "2.33"
+#}
 
 variable "vpc_name" {
   description = "VPC name in which we create this database"
@@ -43,6 +44,12 @@ variable "database_subnet_ids" {
   description = "Provide subnet's to create subnet group id"
   type = list(string)
   default = ["subnet-0508810222f7402b9", "subnet-0a57be36cc1eaf5de", "subnet-0d5abc3634a3e2e69"]
+}
+
+variable "rds_subnet_group_tags" {
+  description = "RDS subnet group tags"
+  type = map
+  default = {}
 }
 
 variable "database_storage" {
@@ -271,6 +278,12 @@ variable "database_storage_type" {
   description = "One of 'standard' (magnetic), 'gp2' (general purpose SSD), or 'io1' (provisioned IOPS SSD). The default is 'io1' if iops is specified, 'gp2' if not."
   type = "string"
   default = "gp2"
+}
+
+variable "database_tags" {
+  description = "Database tags"
+  type = map
+  default = {}
 }
 
 variable "database_timezone" {

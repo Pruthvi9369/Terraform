@@ -43,6 +43,11 @@ variable "vpcname" {
   default = "Test_Vpc"
 }
 
+variable "vpc_tags" {
+  type = map
+  default = {}
+}
+
 # Note: Please provide multiple availability_zone if you are creating multiple subnets
 variable "publicazs" {
   type = "list"
@@ -65,6 +70,12 @@ variable "publicsubnetname" {
   default = "Subnet_Public"
 }
 
+# Note: can provide multiple tags here
+variable "publicsubnetname_tags" {
+  type = map
+  default = {}
+}
+
 # Note: Please provide multiple availability_zone if you are creating multiple subnets
 variable "privateazs" {
   type = "list"
@@ -82,9 +93,20 @@ variable "privatesubnetname" {
   default = "Subnet_Private"
 }
 
+# Note: can provide multiple tags here
+variable "privatesubnetname_tags" {
+  type = map
+  default = {}
+}
+
 variable "publicnaclname" {
   type = "string"
   default = "Public_NACL"
+}
+
+variable "publicnaclname_tags" {
+  type = map
+  default = {}
 }
 
 variable "privatenaclname" {
@@ -92,9 +114,19 @@ variable "privatenaclname" {
   default = "Private_NACL"
 }
 
+variable "privatenaclname_tags" {
+  type = map
+  default = {}
+}
+
 variable "igwname" {
   type = "string"
   default = "Test_VPC_IGW"
+}
+
+variable "igwname_tags" {
+  type = map
+  default = {}
 }
 
 variable "natgatewayeipname" {
@@ -107,14 +139,29 @@ variable "natgatewayname" {
   default = "Natgateway_name"
 }
 
+variable "natgatewayname_tags" {
+  type = map
+  default = {}
+}
+
 variable "publicroutetablename" {
   type = "string"
   default = "Public_RouteTable"
 }
 
+variable "publicroutetablename_tags" {
+  type = map
+  default = {}
+}
+
 variable "privateroutetablename" {
   type = "string"
   default = "Private_RouteTable"
+}
+
+variable "privateroutetablename_tags" {
+  type = map
+  default = {}
 }
 
 variable "publicNACL_inbound" {

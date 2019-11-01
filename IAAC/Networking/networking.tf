@@ -11,9 +11,10 @@ resource "aws_vpc" "appvpc" {
   enable_classiclink = "${var.vpcclassiclink}"
   #enable_classic_dns_support = "${var.vpcclassiclink_dns}"
   assign_generated_ipv6_cidr_block = "${var.vpccidrblockipv6}"
-  tags = {
-    Name = "${var.vpcname}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}",
+    "cidr_block", "${var.vpccidr}",
+    ), var.vpc_tags)}"
 }
 
 resource "aws_subnet" "apppublicsubnet" {
@@ -22,9 +23,11 @@ resource "aws_subnet" "apppublicsubnet" {
   map_public_ip_on_launch = "${var.publicsubnet_public_ip}"
   availability_zone = "${element(var.publicazs, count.index)}"
   vpc_id = "${aws_vpc.appvpc.id}"
-  tags = {
-    Name = "${var.vpcname}-${var.publicsubnetname}-${count.index+1}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.publicsubnetname}-${count.index+1}",
+    "vpc_id", "${aws_vpc.appvpc.id}"
+    ), var.publicsubnetname_tags)
+  }"
 }
 
 resource "aws_subnet" "appprivatesubnet" {
@@ -32,57 +35,66 @@ resource "aws_subnet" "appprivatesubnet" {
   cidr_block = "${element(var.privatesubnetcidr, count.index)}"
   availability_zone = "${element(var.privateazs, count.index)}"
   vpc_id = "${aws_vpc.appvpc.id}"
-  tags = {
-    Name = "${var.vpcname}-${var.privatesubnetname}-${count.index+1}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.privatesubnetname}-${count.index+1}",
+    "vpc_id", "${aws_vpc.appvpc.id}",
+    ), var.privatesubnetname_tags)}"
 }
 
 resource "aws_network_acl" "publicnetworkacl" {
   vpc_id = "${aws_vpc.appvpc.id}"
   subnet_ids = "${aws_subnet.apppublicsubnet.*.id}"
-  tags = {
-    Name = "${var.vpcname}-${var.publicnaclname}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.publicnaclname}",
+    "vpc_id", "${aws_vpc.appvpc.id}",
+    ), var.publicnaclname_tags)}"
 }
 
 resource "aws_network_acl" "privatenetworkacl" {
   vpc_id = "${aws_vpc.appvpc.id}"
   subnet_ids = "${aws_subnet.appprivatesubnet.*.id}"
 
-  tags = {
-    Name = "${var.vpcname}-${var.privatenaclname}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.privatenaclname}",
+    "vpc_id", "${aws_vpc.appvpc.id}",
+    ), var.privatenaclname_tags)}"
 }
 
 resource "aws_internet_gateway" "igw" {
   vpc_id = "${aws_vpc.appvpc.id}"
-  tags = {
-    Name = "${var.vpcname}-${var.igwname}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.igwname}",
+    "vpc_id", "${aws_vpc.appvpc.id}",
+    ), var.igwname_tags)}"
 }
 
 resource "aws_eip" "natgatewayip" {
   count = "${length(var.publicsubnetcidr)}"
   vpc = true
-  tags = {
-    Name = "${var.vpcname}-${var.natgatewayeipname}-${count.index+1}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.natgatewayeipname}-${count.index+1}",
+    "vpc_id", "${aws_vpc.appvpc.id}"
+    ), var.igwname_tags)}"
 }
 
 resource "aws_nat_gateway" "natgateway" {
   count = "${length(var.publicazs)}"
   allocation_id = "${element(aws_eip.natgatewayip.*.id, count.index)}"
   subnet_id = "${element(aws_subnet.apppublicsubnet.*.id, count.index)}"
-  tags = {
-    Name = "${var.vpcname}-${var.natgatewayname}-${count.index+1}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.natgatewayname}-${count.index+1}",
+    "subnet_id", "${element(aws_subnet.apppublicsubnet.*.id, count.index)}",
+    ), var.natgatewayname_tags)}"
 }
 
 resource "aws_route_table" "publicroutetable" {
   vpc_id = "${aws_vpc.appvpc.id}"
-  tags = {
-    Name = "${var.vpcname}-${var.publicroutetablename}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.publicroutetablename}",
+    "vpc_id", "${aws_vpc.appvpc.id}",
+    ), var.publicroutetablename_tags)
+
+  }"
 }
 
 resource "aws_route_table_association" "publicrouteassociation" {
@@ -99,9 +111,10 @@ resource "aws_route" "publicroute" {
 
 resource "aws_route_table" "privateroutetable" {
   vpc_id = "${aws_vpc.appvpc.id}"
-  tags = {
-    Name = "${var.vpcname}-${var.privateroutetablename}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.vpcname}-${var.privateroutetablename}",
+    "vpc_id", "${aws_vpc.appvpc.id}",
+    ), var.privateroutetablename_tags)}"
 }
 
 resource "aws_route_table_association" "privaterouteassociation" {

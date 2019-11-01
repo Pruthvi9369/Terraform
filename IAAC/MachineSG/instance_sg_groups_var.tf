@@ -31,3 +31,9 @@ variable "instance_sg_egress" {
     }
   ]
 }
+
+variable "instance_sg_tags" {
+  description = "Please provide tags to sg"
+  type = map
+  default = {}
+}

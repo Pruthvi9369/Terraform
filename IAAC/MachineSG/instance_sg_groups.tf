@@ -24,8 +24,9 @@ resource "aws_security_group" "instance_sg" {
     }
   }
 
-  tags = {
-    Name = "${var.sg_name}"
-  }
+  tags = "${merge(map(
+    "Name", "${var.sg_name}",
+    "vpc_id", "${var.assign_vpc_id}",
+    ), var.instance_sg_tags)}"
 
 }

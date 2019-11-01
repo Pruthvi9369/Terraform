@@ -148,10 +148,21 @@ variable "instance_name" {
 
 variable "instance_keyname" {
   type = "string"
-  default = "linux_key"
+  default = ""
+  #default = "linux_key"
 }
 
 variable "instance_vpc_sg_ids" {
   type = list
   default = ["sg-0f2285ec2dbcee3af", "sg-0fbfb800ce419f176"]
+}
+
+variable "appinstance_volume_tags" {
+  type = map
+  default = {}
+}
+
+variable "appinstance_tags" {
+  type = map
+  default = {}
 }

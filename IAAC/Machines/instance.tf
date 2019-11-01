@@ -59,10 +59,12 @@ resource "aws_instance" "appinstance" {
     }
   }
 
-  volume_tags = {
-    Name = "${var.instance_name}-Volumes"
-    }
-  tags = {
-    Name = "${var.instance_name}-${count.index+1}"
-  }
+  volume_tags = "${merge(map(
+    "Name", "${var.instance_name}-Volumes",
+    "instance_name", "${var.instance_name}-${count.index+1}",
+    ), var.appinstance_volume_tags)}"
+  tags = "${merge(map(
+    "Name", "${var.instance_name}-${count.index+1}",
+    "ami", "${var.instance_ami}",
+    ), var.appinstance_tags)}"
 }

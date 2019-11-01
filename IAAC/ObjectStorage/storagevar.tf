@@ -22,7 +22,7 @@ variable "bucket_policy" {
 
 variable "bucket_tags" {
   description = "Bucket Tags"
-  type = map(string)
+  type = map
   default = {}
 }
 
@@ -93,5 +93,3 @@ variable "bucket_object_lock_configuration" {
 }
 
 #063208468694
-
-
