@@ -2,131 +2,269 @@ provider "azurerm" {
 
 }
 
-module "Vnet-dev01-eastUS-01" {
+module "vnet-web-niaaa-eastUS-01" {
   source = "../../Networking/Virtual_Network/"
-  resource_group_name = "rg-ppp-dev-01"
+  resource_group_name = "rg-npps-prod-01"
   resource_group_location = "East US"
-  virtual_network_name = "Vnet-dev01-eastUS-01"
-  virtual_network_address_space = ["172.12.0.0/8"]
+  virtual_network_name = "vnet-web-niaaa-eastUS-01"
+  virtual_network_address_space = ["186.0.0.0/8"]
 }
 
-module "snet-public-dev-app-01" {
+module "snet-npps-01" {
   source = "../../Networking/Subnet/"
-  subnet_name = "snet-public-dev-app-01"
-  subnet_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
-  subnet_virtual_network_name = "${module.Vnet-dev01-eastUS-01.virtual_network_name}"
-  subnet_address_prefix = "172.12.2.0/24"
+  subnet_name = "snet-npps-01"
+  subnet_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  subnet_virtual_network_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_name}"
+  subnet_address_prefix = "186.0.2.0/24"
 }
 
-module "snet-private-dev-app-01" {
+module "snet-npps-db-01" {
   source = "../../Networking/Subnet/"
-  subnet_name = "snet-private-dev-app-01"
-  subnet_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
-  subnet_virtual_network_name = "${module.Vnet-dev01-eastUS-01.virtual_network_name}"
-  subnet_address_prefix = "172.12.1.0/24"
+  subnet_name = "snet-npps-db-01"
+  subnet_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  subnet_virtual_network_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_name}"
+  subnet_address_prefix = "186.0.1.0/24"
 }
 
-module "public-routetable-dev-app-01" {
+module "routetable-npps-01" {
   source = "../../Networking/RouteTable/"
-  route_table_name = "public-routetable-dev-app-01"
-  route_table_location = "${module.Vnet-dev01-eastUS-01.virtual_network_location}"
-  route_table_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
+  route_table_name = "routetable-npps-01"
+  route_table_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+  route_table_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
   route_table_route = [
     {
-      name = "dev-app-internet-access"
+      name = "npps-internet-access"
       address_prefix = "0.0.0.0/0"
       next_hop_type = "Internet"
     }
   ]
 }
 
-module "Nsg-pps-weballow-01" {
-  source = "../../Networking/Network_Security_group/"
-  network_security_group_name = "Nsg-pps-weballow-01"
-  network_security_group_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
-  network_security_group_location = "${module.Vnet-dev01-eastUS-01.virtual_network_location}"
+module "routetable-npps-db-01" {
+  source = "../../Networking/RouteTable/"
+  route_table_name = "routetable-npps-db-01"
+  route_table_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+  route_table_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  route_table_route = [
+    {
+      name = "npps-db-access"
+      address_prefix = "186.0.2.0/24"
+      next_hop_type = "VirtualNetworkGateway"
+    }
+  ]
 }
 
-module "Ngs-pps-weballow-inbound-rule-01" {
+module "nsg-npps-allow-01" {
+  source = "../../Networking/Network_Security_group/"
+  network_security_group_name = "nsg-npps-allow-01"
+  network_security_group_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_group_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+}
+
+module "ngs-npps-allow-inbound-rule-01" {
   source = "../../Networking/Network_Security_Rule/"
-  network_security_rule_name = "Ngs-pps-weballow-inbound-rule-01"
+  network_security_rule_name = "ngs-npps-allow-inbound-rule-01"
   network_security_rule_protocol = "TCP"
-  network_security_rule_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
-  network_security_rule_network_security_group_name = "${module.Nsg-pps-weballow-01.network_security_group_name}"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
   network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
   network_security_rule_source_port_range = "22"
   network_security_rule_destination_port_range = "22"
   network_security_rule_access = "Allow"
   network_security_rule_priority = "1000"
   network_security_rule_direction = "Inbound"
-  network_security_rule_destination_address_prefix = "209.183.243.112/28"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28, 50.210.142.96/28"
 }
 
-module "Ngs-pps-weballow-outbound-rule-01" {
+
+module "ngs-npps-allow-inbound-rule-02" {
   source = "../../Networking/Network_Security_Rule/"
-  network_security_rule_name = "Ngs-pps-weballow-outbound-rule-01"
-  network_security_rule_protocol = "TCP"
-  network_security_rule_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
-  network_security_rule_network_security_group_name = "${module.Nsg-pps-weballow-01.network_security_group_name}"
+  network_security_rule_name = "ngs-npps-allow-inbound-rule-02"
+  network_security_rule_protocol = "Any"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
+  network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "443"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "2000"
+  network_security_rule_direction = "Inbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28, 50.210.142.96/28"
+}
+
+module "ngs-npps-allow-inbound-rule-03" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-allow-inbound-rule-03"
+  network_security_rule_protocol = "Any"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
+  network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "80"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "3000"
+  network_security_rule_direction = "Inbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28, 50.210.142.96/28"
+}
+
+module "ngs-npps-allow-inbound-rule-04" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-allow-inbound-rule-04"
+  network_security_rule_protocol = "Any"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
+  network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "8000"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "4000"
+  network_security_rule_direction = "Inbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28, 50.210.142.96/28"
+}
+
+module "ngs-npps-allow-inbound-rule-05" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-allow-inbound-rule-05"
+  network_security_rule_protocol = "Any"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
+  network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "43554"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "500"
+  network_security_rule_direction = "Inbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28, 50.210.142.96/28"
+}
+
+module "ngs-npps-allow-inbound-rule-06" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-allow-inbound-rule-06"
+  network_security_rule_protocol = "Any"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
+  network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "3306"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "600"
+  network_security_rule_direction = "Inbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28, 50.210.142.96/28"
+}
+
+module "ngs-npps-allow-outbound-rule-01" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-allow-outbound-rule-01"
+  network_security_rule_protocol = "*"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
   network_security_rule_description = "PPS Outbound Rule for Netowrk security group"
-  network_security_rule_source_port_range = "22"
-  network_security_rule_destination_port_range = "22"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "*"
   network_security_rule_access = "Allow"
   network_security_rule_priority = "1000"
   network_security_rule_direction = "Outbound"
-  network_security_rule_destination_address_prefix = "209.183.243.112/28"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28"
 }
 
-resource "azurerm_subnet_route_table_association" "route_table_association" {
-  subnet_id = "${module.snet-public-dev-app-01.subnet_id}"
-  route_table_id = "${module.public-routetable-dev-app-01.route_table_id}"
+module "nsg-npps-allow-db-01" {
+  source = "../../Networking/Network_Security_group/"
+  network_security_group_name = "nsg-npps-allow-db-01"
+  network_security_group_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_group_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+}
+
+module "ngs-npps-allow-db-inbound-rule-01" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-allow-db-inbound-rule-01"
+  network_security_rule_protocol = "Any"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-db-01.network_security_group_name}"
+  network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "3306"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "600"
+  network_security_rule_direction = "Inbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28, 50.210.142.96/28"
+}
+
+module "ngs-npps-allow-outbound-rule-01" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-allow-outbound-rule-01"
+  network_security_rule_protocol = "*"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-allow-db-01.network_security_group_name}"
+  network_security_rule_description = "PPS Outbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "*"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "700"
+  network_security_rule_direction = "Outbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28"
+}
+
+resource "azurerm_subnet_route_table_association" "routetable-npps-01-association" {
+  subnet_id = "${module.snet-npps-01.subnet_id}"
+  route_table_id = "${module.routetable-npps-01.route_table_id}"
+}
+
+resource "azurerm_subnet_network_security_group_association" "nsg-npps-allow-01-association" {
+  subnet_id = "${module.snet-npps-01.subnet_id}"
+  network_security_group_id = "${module.nsg-npps-allow-01.network_security_group_id}"
+}
+
+resource "azurerm_subnet_route_table_association" "routetable-npps-db-01-association" {
+  subnet_id = "${module.snet-npps-db-01.subnet_id}"
+  route_table_id = "${module.routetable-npps-db-01.route_table_id}"
 }
 
 resource "azurerm_subnet_network_security_group_association" "network_securityd_group_association" {
-  subnet_id = "${module.snet-public-dev-app-01.subnet_id}"
-  network_security_group_id = "${module.Nsg-pps-weballow-01.network_security_group_id}"
+  subnet_id = "${module.snet-npps-db-01.subnet_id}"
+  network_security_group_id = "${module.nsg-npps-allow-db-01.network_security_group_id}"
 }
 
-module "vmpps001-public-ip" {
+
+module "vm-npps-web-public-ip-01" {
   source = "../../Networking/Public_Ipaddress/"
-  public_ip_name = "vmpps001-public-ip"
-  public_ip_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
-  public_ip_location = "${module.Vnet-dev01-eastUS-01.virtual_network_location}"
+  public_ip_name = "vm-npps-web-public-ip-01"
+  public_ip_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  public_ip_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
 }
 
-module "vmpps001-networkinterface" {
+module "vm-npps-web-networkinterface-01" {
   source = "../../Networking/Network_Interface/"
-  network_interface_name = "vmpps001-networkinterface"
-  network_interface_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
-  network_interface_location = "${module.Vnet-dev01-eastUS-01.virtual_network_location}"
+  network_interface_name = "vm-npps-web-networkinterface-01"
+  network_interface_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_interface_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
   network_interface_ip_configuration = [
     {
-      name = "ss-networkinterface-ip-config"
-      subnet_id = "${module.snet-public-dev-app-01.subnet_id}"
+      name = "vm-npps-web-networkinterface-ip-config"
+      subnet_id = "${module.snet-npps-01.subnet_id}"
       private_ip_address_allocation = "Dynamic"
-      public_ip_address_id = "${module.vmpps001-public-ip.public_ip_id}"
+      public_ip_address_id = "${module.vm-npps-web-public-ip-01.public_ip_id}"
     }
   ]
 }
 
-module "vmpps001" {
+module "vm-npps-web-01" {
   source = "../../ComputeResources/VirtualMachine/"
   virtual_machine_name = "vmpps001"
-  virtual_machine_resource_group_name = "${module.Vnet-dev01-eastUS-01.virtual_network_resource_group_name}"
-  virtual_machine_location = "${module.Vnet-dev01-eastUS-01.virtual_network_location}"
-  virtual_machine_network_interface_ids = ["${module.vmpps001-networkinterface.network_interface_id}"]
-  virtual_machine_vm_size = "Standard_DS1_v2"
+  virtual_machine_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  virtual_machine_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+  virtual_machine_network_interface_ids = ["${module.vm-npps-web-networkinterface-01.network_interface_id}"]
+  virtual_machine_vm_size = "Standard_DS2_v2"
   virtual_machine_storage_image_reference = [
     {
       publisher = "Canonical"
       offer = "UbuntuServer"
-      sku = "16.04-LTS"
+      sku = "18.04-LTS"
       version = "latest"
     }
   ]
   virtual_machine_storage_os_disk = [
     {
-      name = "vmpps001-disk"
+      name = "vm-npps-web-disk"
       caching = "ReadWrite"
       create_option = "FromImage"
       managed_disk_type = "Standard_LRS"
@@ -134,8 +272,8 @@ module "vmpps001" {
   ]
   virtual_machine_os_profile = [
     {
-      computer_name = "vmpps001"
-      admin_username = "vmpps001User"
+      computer_name = "vmnppsweb01"
+      admin_username = "vmnppsweb01User"
       admin_password = "Password1234!"
     }
   ]
@@ -144,4 +282,30 @@ module "vmpps001" {
       disable_password_authentication = "false"
     }
   ]
+}
+
+module "db-npps-mysql-01" {
+  source = "../../DatabaseResource/MySql/"
+  mysql_server_name = "db-npps-mysql-01"
+  mysql_server_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  mysql_server_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+  mysql_server_sku = [
+    {
+      name = "B_Gen5_2"
+      capacity = "2"
+      tier = "Basic"
+      family = "Gen5"
+    }
+  ]
+  mysql_server_storage_profile = [
+    {
+      storage_mb = "5120"
+      backup_retention_days = "7"
+      geo_redundant_backup = "Disabled"
+    }
+  ]
+  mysql_server_administrator_login = "nppsmysqldb"
+  mysql_server_administrator_login_password = "H@Sh1CoR3!"
+  mysql_server_version = "5.7"
+  mysql_server_ssl_enforcement = "Disabled"
 }
