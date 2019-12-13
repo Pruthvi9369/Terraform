@@ -64,7 +64,7 @@ module "ngs-npps-allow-inbound-rule-01" {
 module "ngs-npps-allow-inbound-rule-02" {
   source = "../../Networking/Network_Security_Rule/"
   network_security_rule_name = "ngs-npps-allow-inbound-rule-02"
-  network_security_rule_protocol = "Any"
+  network_security_rule_protocol = "*"
   network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
   network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
   network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
@@ -80,7 +80,7 @@ module "ngs-npps-allow-inbound-rule-02" {
 module "ngs-npps-allow-inbound-rule-03" {
   source = "../../Networking/Network_Security_Rule/"
   network_security_rule_name = "ngs-npps-allow-inbound-rule-03"
-  network_security_rule_protocol = "Any"
+  network_security_rule_protocol = "*"
   network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
   network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
   network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
@@ -96,7 +96,7 @@ module "ngs-npps-allow-inbound-rule-03" {
 module "ngs-npps-allow-inbound-rule-04" {
   source = "../../Networking/Network_Security_Rule/"
   network_security_rule_name = "ngs-npps-allow-inbound-rule-04"
-  network_security_rule_protocol = "Any"
+  network_security_rule_protocol = "*"
   network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
   network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
   network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
@@ -112,7 +112,7 @@ module "ngs-npps-allow-inbound-rule-04" {
 module "ngs-npps-allow-inbound-rule-05" {
   source = "../../Networking/Network_Security_Rule/"
   network_security_rule_name = "ngs-npps-allow-inbound-rule-05"
-  network_security_rule_protocol = "Any"
+  network_security_rule_protocol = "*"
   network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
   network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
   network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
@@ -128,7 +128,7 @@ module "ngs-npps-allow-inbound-rule-05" {
 module "ngs-npps-allow-inbound-rule-06" {
   source = "../../Networking/Network_Security_Rule/"
   network_security_rule_name = "ngs-npps-allow-inbound-rule-06"
-  network_security_rule_protocol = "Any"
+  network_security_rule_protocol = "*"
   network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
   network_security_rule_network_security_group_name = "${module.nsg-npps-allow-01.network_security_group_name}"
   network_security_rule_description = "PPS Inbound Rule for Netowrk security group"
