@@ -28,14 +28,16 @@ module "snet-npps-db-01" {
   subnet_virtual_network_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_name}"
   subnet_address_prefix = "186.0.1.0/24"
   subnet_service_endpoints = ["Microsoft.Sql"]
-  subnet_delegation = {
-    name = "database_access"
-      service_delegation = {
-        name = "Microsoft.Sql/servers"
-        actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action",
-                    "Microsoft.Network/virtualNetworks/subnets/unprepareNetworkPolicies/action"]
-      }
-  }
+  subnet_delegation = [
+    {
+      name = "database_access"
+        service_delegation = {
+          name = "Microsoft.Sql/servers"
+          actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action",
+                      "Microsoft.Network/virtualNetworks/subnets/unprepareNetworkPolicies/action"]
+        }
+    }
+  ]
 }
 
 # The route table to route network traffic from internet to npps application
