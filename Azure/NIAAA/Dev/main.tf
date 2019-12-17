@@ -21,6 +21,25 @@ module "snet-npps-01" {
   subnet_address_prefix = "186.0.2.0/24"
 }
 
+module "snet-npps-db-01" {
+  source = "../../Networking/Subnet/"
+  subnet_name = "snet-npps-db-01"
+  subnet_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  subnet_virtual_network_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_name}"
+  subnet_address_prefix = "186.0.1.0/24"
+  subnet_service_endpoints = ["Microsoft.Sql"]
+  subnet_delegation = [
+    {
+      name = "npps_db_access"
+      service_delegation = {
+        name = "Microsoft.Sql/managedInstances"
+        actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action",
+                    "Microsoft.Network/virtualNetworks/subnets/unprepareNetworkPolicies/action"]
+      }
+    }
+  ]
+}
+
 # The route table to route network traffic from internet to npps application
 module "routetable-npps-01" {
   source = "../../Networking/RouteTable/"
@@ -32,6 +51,21 @@ module "routetable-npps-01" {
       name = "npps-internet-access"
       address_prefix = "0.0.0.0/0"
       next_hop_type = "Internet"
+    }
+  ]
+}
+
+module "routetable-npps-db-01" {
+  source = "../../Networking/RouteTable/"
+  route_table_name = "routetable-npps-db-01"
+  route_table_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+  route_table_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  route_table_route = [
+    {
+      name = "npps-db-routetable"
+      address_prefix = "186.0.2.0/24"
+      next_hop_type = "VirtualAppliance"
+      next_hop_in_ip_address = "186.0.2.4"
     }
   ]
 }
@@ -156,6 +190,43 @@ module "ngs-npps-allow-outbound-rule-01" {
   #network_security_rule_destination_address_prefix = "209.183.243.112/28"
 }
 
+module "nsg-npps-db-allow-01" {
+  source = "../../Networking/Network_Security_group/"
+  network_security_group_name = "nsg-npps-db-allow-01"
+  network_security_group_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_group_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+}
+
+module "ngs-npps-db-allow-inbound-rule-01" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-db-allow-inbound-rule-01"
+  network_security_rule_protocol = "*"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-db-allow-01.network_security_group_name}"
+  network_security_rule_description = "NPPS db Inbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "*"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "1000"
+  network_security_rule_direction = "Inbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28, 50.210.142.96/28"
+}
+
+module "ngs-npps-db-allow-outbound-rule-01" {
+  source = "../../Networking/Network_Security_Rule/"
+  network_security_rule_name = "ngs-npps-db-allow-outbound-rule-01"
+  network_security_rule_protocol = "*"
+  network_security_rule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  network_security_rule_network_security_group_name = "${module.nsg-npps-db-allow-01.network_security_group_name}"
+  network_security_rule_description = "NPPS db Outbound Rule for Netowrk security group"
+  network_security_rule_source_port_range = "*"
+  network_security_rule_destination_port_range = "*"
+  network_security_rule_access = "Allow"
+  network_security_rule_priority = "1000"
+  network_security_rule_direction = "Outbound"
+  #network_security_rule_destination_address_prefix = "209.183.243.112/28"
+}
+
 # Association of route table to application to subnet
 resource "azurerm_subnet_route_table_association" "routetable-npps-01-association" {
   subnet_id = "${module.snet-npps-01.subnet_id}"
@@ -166,6 +237,18 @@ resource "azurerm_subnet_route_table_association" "routetable-npps-01-associatio
 resource "azurerm_subnet_network_security_group_association" "nsg-npps-allow-01-association" {
   subnet_id = "${module.snet-npps-01.subnet_id}"
   network_security_group_id = "${module.nsg-npps-allow-01.network_security_group_id}"
+}
+
+
+resource "azurerm_subnet_route_table_association" "routetable-npps-db-01-association" {
+  subnet_id = "${module.snet-npps-db-01.subnet_id}"
+  route_table_id = "${module.routetable-npps-db-01.route_table_id}"
+}
+
+
+resource "azurerm_subnet_network_security_group_association" "nsg-npps-allow-01-association" {
+  subnet_id = "${module.snet-npps-db-01.subnet_id}"
+  network_security_group_id = "${module.nsg-npps-db-allow-01.network_security_group_id}"
 }
 
 # The IP addresses for the resources
@@ -256,3 +339,14 @@ module "db-npps-mysql-01" {
   mysql_server_version = "5.7"
   mysql_server_ssl_enforcement = "Disabled"
 }
+
+/*
+module "db-npps-mysql-01_snet_association" {
+  source = "../../DatabaseResource/MySql/MySqlVnetRule"
+  mysqlventrule_name = "db-npps-mysql-01_snet_association"
+  mysqlventrule_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  mysqlventrule_server_name = "${module.db-npps-mysql-01.mysql_server_id}"
+  mysqlventrule_subnet_id = "${module.snet-npps-db-01.subnet_id}"
+
+}
+*/
