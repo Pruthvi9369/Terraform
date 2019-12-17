@@ -32,7 +32,7 @@ module "snet-npps-db-01" {
     {
       name = "database_access"
         service_delegation = {
-          name = "Microsoft.Sql/servers"
+          name = "Microsoft.Sql/managedInstances"
           actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action",
                       "Microsoft.Network/virtualNetworks/subnets/unprepareNetworkPolicies/action"]
         }
