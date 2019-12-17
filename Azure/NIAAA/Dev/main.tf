@@ -28,16 +28,14 @@ module "snet-npps-db-01" {
   subnet_virtual_network_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_name}"
   subnet_address_prefix = "186.0.1.0/24"
   subnet_service_endpoints = ["Microsoft.Sql"]
-  subnet_delegation = [
-    {
-      name = "npps_db_access"
+  subnet_delegation = {
+    name = "database_access"
       service_delegation = {
-        name = "Microsoft.Sql/managedInstances"
+        name = "Microsoft.Sql/servers"
         actions = ["Microsoft.Network/virtualNetworks/subnets/join/action", "Microsoft.Network/virtualNetworks/subnets/prepareNetworkPolicies/action",
                     "Microsoft.Network/virtualNetworks/subnets/unprepareNetworkPolicies/action"]
       }
-    }
-  ]
+  }
 }
 
 # The route table to route network traffic from internet to npps application
@@ -246,7 +244,7 @@ resource "azurerm_subnet_route_table_association" "routetable-npps-db-01-associa
 }
 
 
-resource "azurerm_subnet_network_security_group_association" "nsg-npps-allow-01-association" {
+resource "azurerm_subnet_network_security_group_association" "nsg-npps-db-allow-01-association" {
   subnet_id = "${module.snet-npps-db-01.subnet_id}"
   network_security_group_id = "${module.nsg-npps-db-allow-01.network_security_group_id}"
 }
@@ -315,7 +313,7 @@ module "vm-npps-web-01" {
 
 # Azure database for MySQL managed instance for application backend.
 module "db-npps-mysql-01" {
-  source = "../../DatabaseResource/MySql/"
+  source = "../../DatabaseResource/MySql/MySqlServer/"
   mysql_server_name = "db-npps-mysql-01"
   mysql_server_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
   mysql_server_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"

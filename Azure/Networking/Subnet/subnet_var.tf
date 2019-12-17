@@ -42,8 +42,8 @@ variable "subnet_service_endpoints" {
 
 variable "subnet_delegation" {
   description = "Please provide delegation"
-  type = list(map(string))
-  default = []
+  type = any
+  default = {}
 }
 
 #variable "subnet_service_delegation" {
