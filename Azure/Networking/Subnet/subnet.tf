@@ -14,7 +14,7 @@ resource "azurerm_subnet" "subnet" {
       name = "${lookup(delegation.value, "name", null)}"
 
       dynamic "service_delegation" {
-        for_each = "${delegation.value.service_delegation}"
+        for_each = "${length(keys(lookup(delegation.value, "service_delegation", {}))) == 0 ? [] : [lookup(delegation.value, "service_delegation", {})]}"
 
         content {
           name = "${lookup(service_delegation.value, "name", null)}"
