@@ -19,7 +19,7 @@ variable "key_vault_resource_group_name" {
 variable "key_vault_sku" {
   description = "Please provide sku"
   type = any
-  default = ""
+  default = {}
 }
 
 variable "key_vault_sku_name" {
@@ -37,31 +37,31 @@ variable "key_vault_tenant_id" {
 variable "key_vault_access_policy" {
   description = "Please provide access policy"
   type = any
-  default = ""
+  default = {}
 }
 
 variable "key_vault_enabled_for_deployment" {
   description = "Please provide enable for deployment"
-  type = "string"
-  default = ""
+  type = bool
+  default = false
 }
 
 variable "key_vault_enabled_for_disk_encryption" {
   description = "Please provide enable for disk encryption"
-  type = "string"
-  default = ""
+  type = bool
+  default = false
 }
 
 variable "key_vault_enabled_for_template_deployment" {
   description = "Please provide enable for template deployment"
-  type = "string"
-  default = ""
+  type = bool
+  default = false
 }
 
 variable "key_vault_network_acls" {
   description = "Please provide network acls"
   type = any
-  default = ""
+  default = {}
 }
 
 variable "key_vault_tags" {

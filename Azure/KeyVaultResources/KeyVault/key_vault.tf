@@ -13,6 +13,7 @@ resource "azurerm_key_vault" "key_vault" {
 
   sku_name = "${var.key_vault_sku_name}"
   tenant_id = "${var.key_vault_tenant_id}"
+
   dynamic "access_policy" {
     for_each = "${var.key_vault_access_policy}"
 
@@ -27,7 +28,7 @@ resource "azurerm_key_vault" "key_vault" {
     }
   }
 
-  enabled_for_deployment "${var.key_vault_enabled_for_deployment}"
+  enabled_for_deployment = "${var.key_vault_enabled_for_deployment}"
   enabled_for_disk_encryption = "${var.key_vault_enabled_for_disk_encryption}"
   enabled_for_template_deployment = "${var.key_vault_enabled_for_template_deployment}"
 
