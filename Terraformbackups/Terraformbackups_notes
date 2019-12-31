@@ -1,0 +1,14 @@
+we have to use backend to save .tfstate file to there respective storage account.
+
+if we lost .tfstate files we can use terraform import method to retrieve .tfstate file with existing .tf files.
+
+command: terraform import resorce_type.resource_name id
+
+        if we have module tree structure we can use below methond
+        terraform import module.module_name.resource_type.resource_name id
+
+        ex: terraform import module.ssh_test.azurerm_virtual_machine.virtual_machine '/subscriptions/b7ecc78c-d7fe-4f1b-8c97-6816f5bf16b0/resourceGroups/jenkins_node/providers/Microsoft.Compute/virtualMachines/ssh_test'
+            terraform import module.vnet_public_ip.azurerm_public_ip.public_ip '/subscriptions/b7ecc78c-d7fe-4f1b-8c97-6816f5bf16b0/resourceGroups/jenkins_node/providers/Microsoft.Network/publicIPAddresses/vnet_public_ip'
+
+Note: when we use terraform import method to retrieve '.tfstate' files it import's only specific resource not entire main.tf file.
+      when we use terraform import method to retrieve '.tfstate' files for individual resources it appends the existing '.tfstate' files which is created initially.
