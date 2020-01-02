@@ -27,7 +27,7 @@ module "snet-npps-db-01" {
   subnet_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
   subnet_virtual_network_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_name}"
   subnet_address_prefix = "186.0.1.0/24"
-  subnet_service_endpoints = ["Microsoft.Sql"]
+  subnet_service_endpoints = ["Microsoft.Sql", "Microsoft.Storage"]
   subnet_delegation = [
     {
       name = "database_access"
@@ -338,6 +338,22 @@ module "db-npps-mysql-01" {
   mysql_server_administrator_login_password = "H@Sh1CoR3!"
   mysql_server_version = "5.7"
   mysql_server_ssl_enforcement = "Disabled"
+}
+
+module "stornppsdev01" {
+  source = "../../StorageResources/StorageAccount"
+  storage_account_name = "stornppsdev01"
+  storage_account_resource_group_name = "${module.vnet-web-niaaa-eastUS-01.virtual_network_resource_group_name}"
+  storage_account_location = "${module.vnet-web-niaaa-eastUS-01.virtual_network_location}"
+  storage_account_account_tier = "Standard"
+  storage_account_account_replication_type = "LRS"
+  storage_account_access_tier = "Hot"
+  storage_account_network_rules = [
+    {
+      default_action = "Deny"
+      virtual_network_subnet_ids = ["${module.snet-npps-db-01.subnet_id}"]
+    }
+  ]
 }
 
 /*
