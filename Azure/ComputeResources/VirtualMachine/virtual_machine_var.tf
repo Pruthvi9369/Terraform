@@ -1,3 +1,9 @@
+variable "virtual_machine_count" {
+  description = "Please provide Virtual Machine Count"
+  type = "string"
+  default = ""
+}
+
 variable "virtual_machine_name" {
   description = "Please provide Virtual Machine Name (Required)"
   type = "string"
@@ -24,7 +30,7 @@ variable "virtual_machine_network_interface_ids" {
 
 variable "virtual_machine_os_profile_linux_config" {
   description = "Please provide Virtual Machine's Linux Config (Required, when a Linux machine)"
-  type = list(map(string))
+  type = any
   default = []
 }
 

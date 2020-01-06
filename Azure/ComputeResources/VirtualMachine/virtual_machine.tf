@@ -1,5 +1,6 @@
 resource "azurerm_virtual_machine" "virtual_machine" {
-  name = "${var.virtual_machine_name}"
+  count = "${var.virtual_machine_count}"
+  name = "${var.virtual_machine_name}-${count.index+1}"
   resource_group_name = "${var.virtual_machine_resource_group_name}"
   location = "${var.virtual_machine_location}"
   network_interface_ids = "${var.virtual_machine_network_interface_ids}"
@@ -10,14 +11,13 @@ resource "azurerm_virtual_machine" "virtual_machine" {
     content {
       disable_password_authentication = "${lookup(os_profile_linux_config.value, "disable_password_authentication", null)}"
 
-      #dynamic "ssh_keys" {
-      #  for_each = "${os_profile_linux_config.value.ssh_keys}"
-
-      #  content {
-      #    key_data = "${lookup(ssh_keys.value, "key_data", null)}"
-      #    path = "${lookup(ssh_keys.value, "path", null)}"
-      #  }
-      #}
+      dynamic "ssh_keys" {
+        for_each = "${lookup(os_profile_linux_config.value, "ssh_keys", {})}"
+        content {
+          key_data = "${lookup(ssh_keys.value, "key_data", null)}"
+          path = "${lookup(ssh_keys.value, "path", null)}"
+        }
+      }
     }
   }
 
@@ -172,7 +172,7 @@ resource "azurerm_virtual_machine" "virtual_machine" {
   }
 
   tags = "${merge(map(
-    "Name", "${var.virtual_machine_name}",
+    "Name", "${var.virtual_machine_name}-${count.index+1}",
     "resource_group_name", "${var.virtual_machine_resource_group_name}",
     ), var.virtual_machine_tags)}"
 

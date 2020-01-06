@@ -18,7 +18,7 @@ variable "network_security_group_location" {
 
 variable "network_security_group_security_rule" {
   description = "Please provide network security group security rule"
-  type = list(map(string))
+  type = any
   default = []
 }
 
