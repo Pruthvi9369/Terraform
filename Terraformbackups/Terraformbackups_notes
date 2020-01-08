@@ -12,3 +12,11 @@ command: terraform import resorce_type.resource_name id
 
 Note: when we use terraform import method to retrieve '.tfstate' files it import's only specific resource not entire main.tf file.
       when we use terraform import method to retrieve '.tfstate' files for individual resources it appends the existing '.tfstate' files which is created initially.
+
+
+To use .tfvars we require ".tfvars" file and we need "-var-file" command to use file with performing "terraform plan" and "terraform apply"
+    Note: when you mention .tfvars as "terraform.tfvars" you don't need to use "-var-file" command 
+    Ex: "terraform plan -var-file=variable.tfvars", "terraform apply -var-file=variable.tfvars"
+
+
+To switch terraform versions there is a plugin for terraform and my typing "tfswitch" command we can switch versions
