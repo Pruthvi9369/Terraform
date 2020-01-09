@@ -15,8 +15,22 @@ Note: when we use terraform import method to retrieve '.tfstate' files it import
 
 
 To use .tfvars we require ".tfvars" file and we need "-var-file" command to use file with performing "terraform plan" and "terraform apply"
-    Note: when you mention .tfvars as "terraform.tfvars" you don't need to use "-var-file" command 
+    Note: when you mention .tfvars as "terraform.tfvars" you don't need to use "-var-file" command
     Ex: "terraform plan -var-file=variable.tfvars", "terraform apply -var-file=variable.tfvars"
 
 
 To switch terraform versions there is a plugin for terraform and my typing "tfswitch" command we can switch versions
+
+Terraform output: when we you modules architecture and want to return output to "output.tf" we need to mention modules in "output.tf" file as below
+  Ex: output "vnet_public_ip" {
+          value = "${module.vnet_public_ip}"
+      }
+
+      output "vnet_network_interface" {
+          value = "${module.vnet_network_interface}"
+      }
+
+  It returns the values of fiends which are written or defined in module(main modules or infrastructure modules) of a resource.
+
+  Note: output will not return into file to view output values for a resource or infa. Need to got at that folder perticular location
+        and type or execute "terraform output". it gives the values of module or resources defiled in "output.tf" file.
